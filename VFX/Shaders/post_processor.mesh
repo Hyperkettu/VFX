@@ -1,0 +1,48 @@
+#version 460
+#extension GL_EXT_mesh_shader : require
+
+layout(local_size_x = 1) in;
+
+layout(max_vertices = 36, max_primitives = 12) out;
+layout(triangles) out;
+
+struct Vertex {
+    vec3 pos;
+    vec2 uv;
+};
+
+const Vertex screenQuadVertices[4] = Vertex[](
+    Vertex(vec3(-1, -1,  0), vec2(0.0, 0.0)),
+    Vertex(vec3( 1, -1,  0), vec2(1.0, 0.0)),
+    Vertex(vec3( 1,  1,  0), vec2(1.0, 1.0)),
+    Vertex(vec3(-1,  1,  0), vec2(0.0, 1.0))
+);
+
+const uvec3 screenQuadIndices[2] = uvec3[](
+    // Front
+    uvec3(0, 1, 2), uvec3(0, 2, 3)
+);
+
+layout(location = 0) out vec2 vUVs[];
+
+void main() {
+    SetMeshOutputsEXT(4, 2);
+
+    Vertex v0 = screenQuadVertices[0];
+    Vertex v1 = screenQuadVertices[1];
+    Vertex v2 = screenQuadVertices[2];
+    Vertex v3 = screenQuadVertices[3];
+
+    gl_MeshVerticesEXT[0].gl_Position = vec4(v0.pos, 1.0);
+    gl_MeshVerticesEXT[1].gl_Position = vec4(v1.pos, 1.0);
+    gl_MeshVerticesEXT[2].gl_Position = vec4(v2.pos, 1.0);
+    gl_MeshVerticesEXT[3].gl_Position = vec4(v3.pos, 1.0);
+
+    vUVs[0] = v0.uv;
+    vUVs[1] = v1.uv;
+    vUVs[2] = v2.uv;
+    vUVs[3] = v3.uv;
+
+     gl_PrimitiveTriangleIndicesEXT[0] = screenQuadIndices[0];
+     gl_PrimitiveTriangleIndicesEXT[1] = screenQuadIndices[1];
+}
