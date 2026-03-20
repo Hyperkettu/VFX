@@ -1,7 +1,5 @@
 #include "FoxRenderer.h"
 
-#include "VFX/Core/Utils.h"
-
 // Static member definitions
 std::unique_ptr<Fox::Graphics::Managers::Vulkan::TextureManager> Fox::Core::Singleton<Fox::Graphics::Managers::Vulkan::TextureManager>::instance = nullptr;
 std::once_flag Fox::Core::Singleton<Fox::Graphics::Managers::Vulkan::TextureManager>::initFlag;

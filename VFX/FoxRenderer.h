@@ -64,6 +64,7 @@
 #include "VFX/Graphics/Vulkan/RenderPassBuilder.h"
 #include "VFX/Graphics/Vulkan/PipelineLayout.h"
 #include "VFX/Graphics/Vulkan/Pipeline.h"
+#include "VFX/Graphics/Vulkan/ComputePipeline.h"
 #include "VFX/Graphics/Vulkan/PipelineBuilder.h"
 
 #include "VFX/Graphics/Geometry/Submesh.h"
@@ -78,6 +79,9 @@
 #include "VFX/Graphics/Managers/Vulkan/MeshManager.h"
 #include "VFX/Graphics/Managers/Vulkan/FrameResourceManager.h"
 #include "VFX/Graphics/Managers/Vulkan/MaterialManager.h"
+#include "VFX/Graphics/Vulkan/ParticleEffect.h"
+#include "VFX/Graphics/Vulkan/EulerParticleEffect.h"
+#include "VFX/Graphics/Managers/Vulkan/ParticleEffectManager.h"
 
 #include "VFX/Scene/Hierarchy.h"
 #include "VFX/Scene/Scene.h"

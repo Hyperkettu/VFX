@@ -133,6 +133,77 @@ namespace Fox {
 						pipelines[Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR] = std::move(mainMeshBindlessShaderPipeline);
 						pipelineLayouts[Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR] = std::move(mainPipelineLayout);
 
+					} 
+				
+					{
+						VkDescriptorSetLayout descriptorSetLayouts = Fox::Graphics::Managers::Vulkan::DescriptorManager::Get().GetDescriptorSet(Fox::Graphics::Managers::Vulkan::Descriptor::EULER_PARTICLE_UPDATE)->GetLayout().Get();
+
+						auto eulerParticleUpdatePipelineLayout = std::make_unique<Fox::Graphics::Vulkan::PipelineLayout>(device,
+							std::vector<VkDescriptorSetLayout>{ descriptorSetLayouts },
+							std::vector<VkPushConstantRange>{});
+
+						auto eulerParticelUpdateComputePipelineBuilder= std::make_unique<Fox::Graphics::Vulkan::ComputePipelineBuilder>(device);
+						auto eulerParticleUpdateComputePipeline = std::make_unique<Fox::Graphics::Vulkan::Pipeline>(eulerParticelUpdateComputePipelineBuilder
+							->WithShader(Fox::Graphics::Enums::PipelineShaderStage::COMPUTE_SHADER, "Shaders/euler_particles_update.spv")
+							.SetLayout(eulerParticleUpdatePipelineLayout->Get())
+							.Build());
+
+						pipelines[Fox::Graphics::Managers::Vulkan::PipelineCategory::EULER_PARTICLE_UPDATE_COMPUTE_PIPELINE] = std::move(eulerParticleUpdateComputePipeline);
+						pipelineLayouts[Fox::Graphics::Managers::Vulkan::PipelineCategory::EULER_PARTICLE_UPDATE_COMPUTE_PIPELINE] = std::move(eulerParticleUpdatePipelineLayout);
+					}
+
+					{
+
+						VkDescriptorSetLayout descriptorSetLayouts = Fox::Graphics::Managers::Vulkan::DescriptorManager::Get().GetDescriptorSet(Fox::Graphics::Managers::Vulkan::Descriptor::EULER_PARTICLE_RENDER)->GetLayout().Get();
+
+						auto eulerParticleRenderPipelineLayout = std::make_unique<Fox::Graphics::Vulkan::PipelineLayout>(device,
+							std::vector<VkDescriptorSetLayout>{ descriptorSetLayouts },
+							std::vector<VkPushConstantRange>{});
+
+						auto mainBuilder = Fox::Graphics::Vulkan::PipelineBuilder(device);
+
+						std::unique_ptr<Fox::Graphics::Vulkan::Pipeline> eulerParticleRender = std::make_unique<Fox::Graphics::Vulkan::Pipeline>(mainBuilder
+							.WithShader(Fox::Graphics::Enums::PipelineShaderStage::MESH_SHADER, "Shaders/euler_particles_mesh.spv")
+							.WithShader(Fox::Graphics::Enums::PipelineShaderStage::FRAGMENT_SHADER, "Shaders/euler_particles_frag.spv")
+							.WithViewport(0.0f, 0.0f, static_cast<float>(capabilities.currentExtent.width), static_cast<float>(capabilities.currentExtent.height), 0.0f, 1.0f)
+							.WithScissor(0, 0, capabilities.currentExtent.width, capabilities.currentExtent.height)
+							.WithColorBlending(VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT |
+								VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_A_BIT, VK_TRUE, VK_FALSE, VkLogicOp::VK_LOGIC_OP_COPY, { 1.0f, 1.0f, 1.0f , 1.0f })
+							.SetLayout(eulerParticleRenderPipelineLayout->Get())
+						//	.WithDepthStencil(VK_TRUE)
+							.SetRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT)->Get())
+							.Build());
+
+						pipelines[Fox::Graphics::Managers::Vulkan::PipelineCategory::EULER_PARTICLE_RENDER] = std::move(eulerParticleRender);
+						pipelineLayouts[Fox::Graphics::Managers::Vulkan::PipelineCategory::EULER_PARTICLE_RENDER] = std::move(eulerParticleRenderPipelineLayout);
+
+					}
+
+					{
+
+						VkDescriptorSetLayout descriptorSetLayouts = Fox::Graphics::Managers::Vulkan::DescriptorManager::Get().GetDescriptorSet(Fox::Graphics::Managers::Vulkan::Descriptor::EULER_PARTICLE_RENDER)->GetLayout().Get();
+
+						auto eulerParticleRenderPipelineLayout = std::make_unique<Fox::Graphics::Vulkan::PipelineLayout>(device,
+							std::vector<VkDescriptorSetLayout>{ descriptorSetLayouts },
+							std::vector<VkPushConstantRange>{});
+
+						auto mainBuilder = Fox::Graphics::Vulkan::PipelineBuilder(device);
+
+						std::unique_ptr<Fox::Graphics::Vulkan::Pipeline> eulerParticleRender = std::make_unique<Fox::Graphics::Vulkan::Pipeline>(mainBuilder
+							.WithShader(Fox::Graphics::Enums::PipelineShaderStage::MESH_SHADER, "Shaders/euler_particles_mesh.spv")
+							.WithShader(Fox::Graphics::Enums::PipelineShaderStage::FRAGMENT_SHADER, "Shaders/euler_particles_frag.spv")
+							.WithViewport(0.0f, 0.0f, static_cast<float>(capabilities.currentExtent.width), static_cast<float>(capabilities.currentExtent.height), 0.0f, 1.0f)
+							.WithScissor(0, 0, capabilities.currentExtent.width, capabilities.currentExtent.height)
+							.WithColorBlending(VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT |
+								VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_A_BIT, VK_TRUE, VK_FALSE, VkLogicOp::VK_LOGIC_OP_COPY, { 1.0f, 1.0f, 1.0f , 1.0f })
+							.SetLayout(eulerParticleRenderPipelineLayout->Get())
+							//	.WithDepthStencil(VK_TRUE)
+							.SetRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR)->Get())
+							.Build());
+
+						pipelines[Fox::Graphics::Managers::Vulkan::PipelineCategory::EULER_PARTICLE_RENDER_NO_CLEAR] = std::move(eulerParticleRender);
+						pipelineLayouts[Fox::Graphics::Managers::Vulkan::PipelineCategory::EULER_PARTICLE_RENDER_NO_CLEAR] = std::move(eulerParticleRenderPipelineLayout);
+
 					}
 
 						return true;

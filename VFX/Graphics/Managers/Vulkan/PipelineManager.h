@@ -16,7 +16,10 @@ namespace Fox {
 					MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR,
 					OFFSCREEN_RENDERING,
 					POST_PROCESSOR, 
-					BASIC_MESH_SHADER_NO_CLEAR
+					BASIC_MESH_SHADER_NO_CLEAR,
+					EULER_PARTICLE_UPDATE_COMPUTE_PIPELINE,
+					EULER_PARTICLE_RENDER,
+					EULER_PARTICLE_RENDER_NO_CLEAR
 				};
 
 				class PipelineManager : public Fox::Core::Singleton<Fox::Graphics::Managers::Vulkan::PipelineManager> {

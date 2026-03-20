@@ -1,0 +1,29 @@
+#version 450
+
+struct EulerParticle {
+	vec3 position;
+	vec3 velocity;
+	vec4 color;
+	float life;
+	float maxLifetime;
+};
+
+layout (binding = 0) uniform ParticleUpdateUBO {
+    float deltaTime;
+} update;
+
+layout(std140, binding = 1) readonly buffer ParticleSSBOIn {
+	EulerParticle particlesIn[];
+};
+
+layout(std140, binding = 2) buffer ParticleSSBOOut {
+	EulerParticle particlesOut[];
+};
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+void main() {
+	uint index = gl_GlobalInvocationID.x;
+	particlesOut[index].position = particlesIn[index].position + particlesIn[index].velocity.xyz * update.deltaTime;
+	particlesOut[index].velocity = particlesIn[index].velocity;
+}

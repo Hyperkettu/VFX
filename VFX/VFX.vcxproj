@@ -153,6 +153,7 @@
     <ClCompile Include="Graphics\Managers\Vulkan\FrameResourceManager.cpp" />
     <ClCompile Include="Graphics\Managers\Vulkan\MaterialManager.cpp" />
     <ClCompile Include="Graphics\Managers\Vulkan\MeshManager.cpp" />
+    <ClCompile Include="Graphics\Managers\Vulkan\ParticleEffectManager.cpp" />
     <ClCompile Include="Graphics\Managers\Vulkan\PipelineManager.cpp" />
     <ClCompile Include="Graphics\Managers\Vulkan\RenderPassManager.cpp" />
     <ClCompile Include="Graphics\Managers\Vulkan\SceneManager.cpp" />
@@ -165,16 +166,19 @@
     <ClCompile Include="Graphics\Vulkan\Camera2D.cpp" />
     <ClCompile Include="Graphics\Vulkan\CommandList.cpp" />
     <ClCompile Include="Graphics\Vulkan\CommandPool.cpp" />
+    <ClCompile Include="Graphics\Vulkan\ComputePipeline.cpp" />
     <ClCompile Include="Graphics\Vulkan\ConstantBuffers.cpp" />
     <ClCompile Include="Graphics\Vulkan\DepthTexture.cpp" />
     <ClCompile Include="Graphics\Vulkan\DescriptorPool.cpp" />
     <ClCompile Include="Graphics\Vulkan\DescriptorSet.cpp" />
     <ClCompile Include="Graphics\Vulkan\DescriptorSetBuilder.cpp" />
     <ClCompile Include="Graphics\Vulkan\DescriptorSetLayout.cpp" />
+    <ClCompile Include="Graphics\Vulkan\EulerParticleEffect.cpp" />
     <ClCompile Include="Graphics\Vulkan\Fence.cpp" />
     <ClCompile Include="Graphics\Vulkan\Framebuffer.cpp" />
     <ClCompile Include="Graphics\Vulkan\FrameResource.cpp" />
     <ClCompile Include="Graphics\Vulkan\IndexBuffer.cpp" />
+    <ClCompile Include="Graphics\Vulkan\ParticleEffect.cpp" />
     <ClCompile Include="Graphics\Vulkan\Pipeline.cpp" />
     <ClCompile Include="Graphics\Vulkan\PipelineBuilder.cpp" />
     <ClCompile Include="Graphics\Vulkan\PipelineLayout.cpp" />
@@ -221,6 +225,7 @@
     <ClInclude Include="Graphics\Managers\Vulkan\FrameResourceManager.h" />
     <ClInclude Include="Graphics\Managers\Vulkan\MaterialManager.h" />
     <ClInclude Include="Graphics\Managers\Vulkan\MeshManager.h" />
+    <ClInclude Include="Graphics\Managers\Vulkan\ParticleEffectManager.h" />
     <ClInclude Include="Graphics\Managers\Vulkan\PipelineManager.h" />
     <ClInclude Include="Graphics\Managers\Vulkan\RenderPassManager.h" />
     <ClInclude Include="Graphics\Managers\Vulkan\SceneManager.h" />
@@ -233,6 +238,7 @@
     <ClInclude Include="Graphics\Vulkan\Camera2D.h" />
     <ClInclude Include="Graphics\Vulkan\CommandList.h" />
     <ClInclude Include="Graphics\Vulkan\CommandPool.h" />
+    <ClInclude Include="Graphics\Vulkan\ComputePipeline.h" />
     <ClInclude Include="Graphics\Vulkan\ConstantBuffer.h" />
     <ClInclude Include="Graphics\Vulkan\ConstantBuffers.h" />
     <ClInclude Include="Graphics\Vulkan\DepthTexture.h" />
@@ -242,10 +248,12 @@
     <ClInclude Include="Graphics\Vulkan\DescriptorSetLayout.h" />
     <ClInclude Include="Graphics\Vulkan\DynamicBuffer.h" />
     <ClInclude Include="Graphics\Vulkan\DynamicConstantBuffer.h" />
+    <ClInclude Include="Graphics\Vulkan\EulerParticleEffect.h" />
     <ClInclude Include="Graphics\Vulkan\Fence.h" />
     <ClInclude Include="Graphics\Vulkan\Framebuffer.h" />
     <ClInclude Include="Graphics\Vulkan\FrameResource.h" />
     <ClInclude Include="Graphics\Vulkan\IndexBuffer.h" />
+    <ClInclude Include="Graphics\Vulkan\ParticleEffect.h" />
     <ClInclude Include="Graphics\Vulkan\Pipeline.h" />
     <ClInclude Include="Graphics\Vulkan\PipelineBuilder.h" />
     <ClInclude Include="Graphics\Vulkan\PipelineLayout.h" />

@@ -12,14 +12,8 @@ namespace Fox {
 			SetUpCamera(capabilities);
 
 			auto root = sceneGraph->GetRoot();
-			//auto plane = AddMeshToScene("Subdivided Plane", Fox::Graphics::Managers::Vulkan::MeshResource::SUBDIVIDED_PLANE, root, glm::vec3(2.0f, 1.0f, 0.0f), glm::vec3(0.0f, glm::radians(35.0f), glm::radians(45.0f)), glm::vec3(0.5f));
-		//	auto plane = AddMeshToScene("Subdivided Plane", Fox::Graphics::Managers::Vulkan::MeshResource::UNIT_QUAD, root, glm::vec3(10.0f * 0.5f, 10.0f * 0.5f, 0.0f), glm::vec3(0.0f), glm::vec3(1920.0f * 0.5f, 1080.0f * 0.5f, 1.0f));
-			//	plane->entity->AddComponent<Fox::Scene::PlaneOrientationControllerComponent>();
+			AddMesh("Cube", Fox::Graphics::Managers::Vulkan::MeshResource::CUBE, root, glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), glm::vec3(1.0f), 0);
 
-			AddMesh("Cube", Fox::Graphics::Managers::Vulkan::MeshResource::CUBE, root, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), 0);
-
-		//	AddMeshToScene("Cube", Fox::Graphics::Managers::Vulkan::MeshResource::CUBE, root, glm::vec3(-2.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, glm::radians(45.0f)), glm::vec3(0.5f));
-		//	AddMeshToScene("Cube2x", Fox::Graphics::Managers::Vulkan::MeshResource::DOUBLESIZEDCUBE, root, glm::vec3(-2.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, glm::radians(135.0f)), glm::vec3(0.5f));
 
 
 			BuildBuffers(device, physicalDevice, commandPool, queue);
@@ -36,8 +30,6 @@ namespace Fox {
 			const glm::vec3& scale, 
 			uint32_t materialIndex) {
 			auto* node = AddMeshToScene(name, meshResource, parent, position, rotation, scale);
-			auto* entity = node->GetEntity<Fox::Scene::Entity>();
-			//auto materialInstance = Fox::Graphics::Managers::Vulkan::MaterialManager::Get().GetMaterialInstance(Fox::Graphics::Managers::Vulkan::MaterialType::SPRITE_MATERIAL, materialIndex);
 			auto* meshComponent = node->GetEntity<Fox::Scene::Entity>()->FindComponent<Fox::Scene::MeshComponent>();
 			meshComponent->SetMaterial(materialIndex);
 

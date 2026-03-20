@@ -31,7 +31,7 @@ namespace Fox {
 					auto spriteDesc = Fox::Graphics::Geometry::SpriteMaterialDescription();
 					spriteDesc.type = Fox::Graphics::Managers::Vulkan::MaterialType::SPRITE_MATERIAL;
 					spriteDesc.albedo = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-					spriteDesc.albedoTexture = Fox::Graphics::Managers::Vulkan::TextureManager::Get().GetShaderResourceTexture("background").get();
+					spriteDesc.albedoTexture = Fox::Graphics::Managers::Vulkan::TextureManager::Get().GetShaderResourceTexture("box").get();
 
 					auto spriteMaterialIndex = RegisterMaterial(spriteDesc);
 

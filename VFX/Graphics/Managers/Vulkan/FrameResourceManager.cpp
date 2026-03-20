@@ -75,42 +75,6 @@ namespace Fox {
 						frameBuffers[static_cast<Fox::Graphics::Managers::Vulkan::FrameBuffer>(static_cast<int32_t>(Fox::Graphics::Managers::Vulkan::FrameBuffer::OFFSCREEN_TARGET_LAYER1) + i)] = std::move(offscreenTargetLayer);
 					}
 
-
-					std::vector<VkImageView> attachmentsPostProcessing = {
-							Fox::Graphics::Managers::Vulkan::TextureManager::Get().GetRenderTargetTexture(static_cast<Fox::Graphics::Managers::Vulkan::RenderTargetTexture>(static_cast<int32_t>(Fox::Graphics::Managers::Vulkan::RenderTargetTexture::POST_PROCESSING_TARGET) + 0))->GetView(),
-							Fox::Graphics::Managers::Vulkan::TextureManager::Get().GetDepthTexture(Fox::Graphics::Managers::Vulkan::DepthTexture::DEFAULT_DEPTH_STENCIL)->GetView()
-					};
-
-					auto postProcessingTarget = std::make_unique<Fox::Graphics::Vulkan::Framebuffer>(
-						device,
-						Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::OFFSCREEN_NO_CLEAR)->Get(),
-						attachmentsPostProcessing,
-						capabilities.currentExtent.width,
-						capabilities.currentExtent.height
-					);
-
-					frameBuffers[Fox::Graphics::Managers::Vulkan::FrameBuffer::POST_PROCESSING_TARGET_NO_CLEAR] = std::move(postProcessingTarget);
-
-					auto postProcessingTargetWithClear = std::make_unique<Fox::Graphics::Vulkan::Framebuffer>(
-						device,
-						Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::OFFSCREEN)->Get(),
-						attachmentsPostProcessing,
-						capabilities.currentExtent.width,
-						capabilities.currentExtent.height
-					);
-
-					frameBuffers[Fox::Graphics::Managers::Vulkan::FrameBuffer::POST_PROCESSING_WITH_CLEAR] = std::move(postProcessingTargetWithClear);
-
-					auto postProcessingToScreen = std::make_unique<Fox::Graphics::Vulkan::Framebuffer>(
-						device,
-						Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR)->Get(),
-						attachmentsPostProcessing,
-						capabilities.currentExtent.width,
-						capabilities.currentExtent.height
-					);
-
-					frameBuffers[Fox::Graphics::Managers::Vulkan::FrameBuffer::POST_PROCESSING_TO_SCREEN] = std::move(postProcessingToScreen);
-
 					return true;
 				}
 

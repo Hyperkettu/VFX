@@ -115,6 +115,7 @@ namespace Fox {
 				}
 
 				Fox::Graphics::Managers::Vulkan::PipelineManager::Get().Initialize(device, capabilities);
+				Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().Initialize(device, physicalDevice, config.MAX_FRAMES_IN_FLIGHT);
 
 				std::cout << "Vulkan instance created successfully.\n";
 				return 1;
@@ -130,6 +131,7 @@ namespace Fox {
 				Fox::Graphics::Managers::Vulkan::TextureManager::Get().Destroy();
 				Fox::Graphics::Managers::Vulkan::MeshManager::Get().Destroy();
 				Fox::Graphics::Managers::Vulkan::SceneManager::Get().Destroy();
+				Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().Destroy();
 
 				vkDestroyDevice(device, nullptr);
 				vkDestroySurfaceKHR(instance, surface, nullptr);
@@ -168,7 +170,7 @@ namespace Fox {
 				for (int i = 0; i < queueFamilies.size(); ++i) {
 					VkBool32 presentSupport = false;
 					vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport);
-					if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && presentSupport) {
+					if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && presentSupport && queueFamilies[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
 						graphicsQueueFamily = i;
 						break;
 					}
@@ -307,18 +309,24 @@ namespace Fox {
 					scene->Update(deltaTime);
 				}
 
+				// TODO add depth pre-pass to compute collisions
+
+				Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().Update(frameResource->computeCommandPool, frameResource->computeCommandList, graphicsQueue, currentFrame, deltaTime);
+
 				frameResource->renderFence->Wait();
 				frameResource->renderFence->Reset();
 
 				Graphics::Managers::Vulkan::TextureManager::Get().Update(currentFrameIndex);
 
 				std::array<VkClearValue, 2> clearValues{};
-				clearValues[0].color = { 0.0f, 0.0f, 0.5f, 1.0f };
+				clearValues[0].color = { 0.0f, 0.5f, 0.5f, 1.0f };
 				clearValues[1].depthStencil = { 1.0f, 0 };
 
 				frameResource->commandPool->Reset();
 				
 				uint32_t imageIndex = frameResourceManager.GetSwapchain()->AcquireNextImage(frameResource->imageAvailableSemaphore->Get());
+
+				Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().Render(frameResource->commandPool, frameResource->commandList, graphicsQueue, frameResource->imageAvailableSemaphore, currentFrame, imageIndex, capabilities, clearValues);
 				
 				frameResource->offscreenDescriptorSet->ClearWrites();
 				frameResource->offscreenDescriptorSet->SetConstantBuffer(0, frameResource->oldPerFrameUBO);
@@ -328,7 +336,6 @@ namespace Fox {
 				
 				auto offscreenPipeline = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipeline(Fox::Graphics::Managers::Vulkan::PipelineCategory::OFFSCREEN_RENDERING)->Get();
 				auto offscreenPipelineLayout = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipelineLayout(Fox::Graphics::Managers::Vulkan::PipelineCategory::OFFSCREEN_RENDERING)->Get();
-
 
 				frameResource->offscreenCommandList->Begin()
 					.BeginRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::OFFSCREEN)->Get(),
@@ -340,11 +347,13 @@ namespace Fox {
 					.RenderMeshShader(1, 1, 1)
 					.EndRenderPass()
 					.End()
-					.Submit(graphicsQueue, frameResource->imageAvailableSemaphore->Get(), frameResource->offscreenFinishedSemaphore->Get(), VK_NULL_HANDLE);
+					.Submit(graphicsQueue, Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().GetParticlesFinishedSemaphore(currentFrame), frameResource->offscreenFinishedSemaphore->Get(), VK_NULL_HANDLE);
 
 				std::array<VkClearValue, 2> clearValuesScenePass{};
-				clearValuesScenePass[0].color = { 0.0f, 0.0f, 0.25f, 1.0f };
+				clearValuesScenePass[0].color = { 1.0f, 0.0f, 0.25f, 1.0f };
 				clearValuesScenePass[1].depthStencil = { 1.0f, 0 };
+
+				vkDeviceWaitIdle(device);
 
 				auto& commandList = frameResource->commandList->Begin();
 
@@ -356,10 +365,9 @@ namespace Fox {
 					frameResourceManager.UpdateConstantBuffersReferences(currentFrame, scene.get(), false);
 					uint32_t numRenderables = UpdateUniformBuffer(currentFrame, scene);
 
-					// pipelines
 					auto pipeline = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipeline(
 						sceneIndex == 0 ?
-						Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING :
+						Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR :
 						Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR)->Get();
 
 					auto layout = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipeline(Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING)->GetLayout();
@@ -367,7 +375,7 @@ namespace Fox {
 					commandList
 						.BeginRenderPass(
 							Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(
-								sceneIndex == 0 ? Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT : Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR)->Get(),
+								sceneIndex == 0 ? Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR : Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR)->Get(),
 							frameResourceManager.GetSwapchain()->GetFramebuffer(imageIndex),
 							capabilities.currentExtent,
 							&clearValuesScenePass[0],
@@ -378,7 +386,7 @@ namespace Fox {
 						.BindDescriptorSets(layout, 0, { constantBuffers.perFrameDescriptorSet->Get() })
 						.BindVertexBuffers(0, { scene->GetVertexBuffer()->Get() }, { 0 })
 						.BindIndexBuffer(scene->GetIndexBuffer()->Get(), 0, VK_INDEX_TYPE_UINT32)
-						.RenderMeshShader(numRenderables/*scene->GetSceneMeshInfos().size()*/, 1, 1)
+						.RenderMeshShader(numRenderables, 1, 1)
 						.EndRenderPass();
 				}
 

@@ -38,6 +38,18 @@ namespace Fox {
 			struct MeshInfos {
 				std::vector<MeshInfo> meshInfos;
 			};
+
+			struct EulerParticle {
+				glm::vec3 position;
+				glm::vec3 velocity;
+				glm::vec4 color; 
+				float life;
+				float maxLifetime;
+			};
+			
+			struct EulerParticleUpdate {
+				float deltaTime;
+			};
 	    }
     }
 }

@@ -15,4 +15,10 @@ glslangValidator -V --target-env vulkan1.4 -S frag textured_pbr_multi_generic_me
 glslangValidator -V --target-env vulkan1.4 -S mesh post_processor.mesh -o post_processor.spv
 glslangValidator -V --target-env vulkan1.4 -S frag post_processor_frag.frag -o post_processor_frag.spv
 
+glslangValidator -V --target-env vulkan1.4 -S comp euler_particles.comp -o euler_particles_update.spv
+glslangValidator -V --target-env vulkan1.4 -S mesh euler_particles.mesh -o euler_particles_mesh.spv
+glslangValidator -V --target-env vulkan1.4 -S frag euler_particles.frag -o euler_particles_frag.spv
+
+
+
 pause

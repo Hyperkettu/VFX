@@ -148,6 +148,12 @@ namespace Fox {
                         return *this;
 					}
 
+                    CommandList& DispatchComputeShader(uint32_t groupCountX, uint32_t groupCountY = 1, uint32_t groupCountZ = 1)
+                    {
+                        vkCmdDispatch(cmd, groupCountX, groupCountY, groupCountZ);
+                        return *this;
+                    }
+
                     static void RegisterRenderMeshShaderFunction(PFN_vkCmdDrawMeshTasksEXT funcPtr)
                     {
                         vkCmdDrawMeshTasksEXT = funcPtr;
@@ -203,6 +209,38 @@ namespace Fox {
                             submitInfo.pSignalSemaphores = &signalSemaphore;
                         }
 						VkResult result = vkQueueSubmit(queue, 1, &submitInfo, fence);
+                        if (result != VK_SUCCESS) {
+                            throw std::runtime_error("Failed to submit command buffer!");
+                        }
+                    }
+
+                    void Submit(VkQueue queue,
+                        std::vector<VkSemaphore>& waitSemaphores,
+                        VkSemaphore signalSemaphore = VK_NULL_HANDLE,
+                        VkFence fence = VK_NULL_HANDLE,
+                        std::vector<VkPipelineStageFlags> waitStages = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT })
+                    {
+                        VkSubmitInfo submitInfo{};
+                        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                        VkCommandBuffer cb = cmd;
+                        submitInfo.commandBufferCount = 1;
+                        submitInfo.pCommandBuffers = &cb;
+
+                        if (waitSemaphores.size() > 0) {
+                            submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+                            submitInfo.pWaitSemaphores = waitSemaphores.data();
+                            submitInfo.pWaitDstStageMask = waitStages.data();
+                     
+                        }
+                        else {
+                            submitInfo.pWaitDstStageMask = 0;
+                        }
+
+                        if (signalSemaphore != VK_NULL_HANDLE) {
+                            submitInfo.signalSemaphoreCount = 1;
+                            submitInfo.pSignalSemaphores = &signalSemaphore;
+                        }
+                        VkResult result = vkQueueSubmit(queue, 1, &submitInfo, fence);
                         if (result != VK_SUCCESS) {
                             throw std::runtime_error("Failed to submit command buffer!");
                         }

@@ -11,7 +11,9 @@ namespace Fox {
 
             int32_t FrameResource::CreateGraphicsCommandResources(VkDevice device, uint32_t queueFamily) {
                 commandPool = std::make_unique<Fox::Graphics::Vulkan::CommandPool>(device, queueFamily);
+                computeCommandPool = std::make_unique<Fox::Graphics::Vulkan::CommandPool>(device, queueFamily);
 				commandList = std::make_unique<Fox::Graphics::Vulkan::CommandList>(device, commandPool->Get());
+                computeCommandList = std::make_unique<Fox::Graphics::Vulkan::CommandList>(device, computeCommandPool->Get());
                 offscreenCommandList = std::make_unique<Fox::Graphics::Vulkan::CommandList>(device, commandPool->Get());
                 return 0;
             }
@@ -31,6 +33,8 @@ namespace Fox {
                 commandList = nullptr;
                 offscreenCommandList = nullptr;
 				commandPool = nullptr;
+                computeCommandList = nullptr;
+                computeCommandPool = nullptr;
                 offscreenDescriptorSet = nullptr;
 				imageAvailableSemaphore = nullptr;
 				renderFinishedSemaphore = nullptr;  

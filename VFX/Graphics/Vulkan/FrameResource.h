@@ -48,9 +48,12 @@ namespace Fox
                 std::unique_ptr<Fox::Graphics::Vulkan::Semaphore> offscreenFinishedSemaphore;
 
                 // --- Command recording ---
-                std::unique_ptr<Fox::Graphics::Vulkan::CommandPool> commandPool;         // Per-frame command pool
+                std::unique_ptr<Fox::Graphics::Vulkan::CommandPool> commandPool;        
                 std::unique_ptr<Fox::Graphics::Vulkan::CommandList> commandList;      // Main primary command buffer
                 std::unique_ptr<Fox::Graphics::Vulkan::CommandList> offscreenCommandList;
+                std::unique_ptr<Fox::Graphics::Vulkan::CommandList> computeCommandList;
+                std::unique_ptr<Fox::Graphics::Vulkan::CommandPool> computeCommandPool;
+
 
                 // --- Descriptor management ---
                 std::unique_ptr<Fox::Graphics::Vulkan::DescriptorSet> offscreenDescriptorSet;

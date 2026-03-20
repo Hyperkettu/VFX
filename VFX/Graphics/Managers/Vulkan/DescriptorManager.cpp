@@ -71,6 +71,30 @@ namespace Fox {
 
 					}
 
+					{
+						auto particleUpdateDescriptorSets = std::make_unique<Fox::Graphics::Vulkan::DescriptorSetBuilder>(Fox::Graphics::Vulkan::DescriptorSetBuilder(device));
+						particleUpdateDescriptorSets
+							->AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT | VkShaderStageFlagBits::VK_SHADER_STAGE_MESH_BIT_EXT)
+							.AddBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT)
+							.AddBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT)
+							.SetMaxSets(config.MAX_FRAMES_IN_FLIGHT)
+							.Build();
+
+						descriptorSetBuilders[Fox::Graphics::Managers::Vulkan::Descriptor::EULER_PARTICLE_UPDATE] = std::move(particleUpdateDescriptorSets);
+					}
+
+					{
+						auto particleRenderDescriptorSets = std::make_unique<Fox::Graphics::Vulkan::DescriptorSetBuilder>(Fox::Graphics::Vulkan::DescriptorSetBuilder(device));
+						particleRenderDescriptorSets
+							->AddBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VkShaderStageFlagBits::VK_SHADER_STAGE_MESH_BIT_EXT)
+							.AddBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VkShaderStageFlagBits::VK_SHADER_STAGE_MESH_BIT_EXT)
+							.AddBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VkShaderStageFlagBits::VK_SHADER_STAGE_MESH_BIT_EXT)
+							.SetMaxSets(config.MAX_FRAMES_IN_FLIGHT)
+							.Build();
+
+						descriptorSetBuilders[Fox::Graphics::Managers::Vulkan::Descriptor::EULER_PARTICLE_RENDER] = std::move(particleRenderDescriptorSets);
+					}
+
 					return true;
 				}
 

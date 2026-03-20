@@ -6,9 +6,9 @@ namespace Fox {
 
 		namespace Vulkan {
 
-			VkShaderStageFlagBits PipelineBuilder::ConvertShaderStage(Fox::Graphics::Enums::PipelineShaderStage stage) {
+			VkShaderStageFlagBits ComputePipelineBuilder::ConvertShaderStage(Fox::Graphics::Enums::PipelineShaderStage stage) {
 				switch (stage) {
-				case Fox::Graphics::Enums::PipelineShaderStage::MESH_SHADER: 
+				case Fox::Graphics::Enums::PipelineShaderStage::MESH_SHADER:
 					return VkShaderStageFlagBits::VK_SHADER_STAGE_MESH_BIT_EXT;
 				case Fox::Graphics::Enums::PipelineShaderStage::TASK_SHADER:
 					return VkShaderStageFlagBits::VK_SHADER_STAGE_TASK_BIT_EXT;
@@ -23,39 +23,15 @@ namespace Fox {
 				return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
 			}
 
-			Fox::Graphics::Vulkan::PipelineBuilder& PipelineBuilder::WithViewport(float viewportX, float viewportY, float width, float height, float minDepth, float maxDepth) {
-				viewport.x = viewportX;
-				viewport.y = viewportY;
-				viewport.width = width;
-				viewport.height =height;
-				viewport.minDepth = minDepth;
-				viewport.maxDepth = maxDepth;
-
-				withViewport = true;
-
-				return *this;
-			}
-			Fox::Graphics::Vulkan::PipelineBuilder& PipelineBuilder::WithScissor(int32_t scissorX, int32_t scissorY, uint32_t width, uint32_t height) {
-				scissorExtent.width = width;
-				scissorExtent.height = height;
-				scissor.offset = { scissorX, scissorY };
-				scissor.extent = scissorExtent;
-
-				withScissor = true;
-
-				return *this;
-			}
-
-
-			void PipelineBuilder::DestroyShaderModules() {
-				for(auto& module : shaderModules) {
+			void ComputePipelineBuilder::DestroyShaderModules() {
+				for (auto& module : shaderModules) {
 					vkDestroyShaderModule(device, module, nullptr);
 				}
 				shaderModules.clear();
 				shaderModuleCreateInfos.clear();
 			}
-	
-			Fox::Graphics::Vulkan::PipelineBuilder& PipelineBuilder::WithShader(Fox::Graphics::Enums::PipelineShaderStage stage, const std::string& shaderPath) {
+
+			Fox::Graphics::Vulkan::ComputePipelineBuilder& ComputePipelineBuilder::WithShader(Fox::Graphics::Enums::PipelineShaderStage stage, const std::string& shaderPath) {
 				std::vector<char> code = Fox::Core::FileSystem::ReadBinaryFile(shaderPath);
 				VkShaderModule shaderModule;
 
