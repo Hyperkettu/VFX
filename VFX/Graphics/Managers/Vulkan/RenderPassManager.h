@@ -14,7 +14,9 @@ namespace Fox {
 					DEFAULT = 0,
 					DEFAULT_NO_CLEAR,
 					OFFSCREEN,
-					OFFSCREEN_NO_CLEAR
+					OFFSCREEN_NO_CLEAR,
+					TO_PRESENTABLE,
+					TO_PRESENTABLE_NO_CLEAR
 				};
 
 				class RenderPassManager : public Fox::Core::Singleton<RenderPassManager> {

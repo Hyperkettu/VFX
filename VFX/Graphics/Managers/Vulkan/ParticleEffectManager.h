@@ -53,6 +53,10 @@ namespace Fox {
 						return particleRenderingFinishedSemaphores[currentFrame]->Get();
 					}
 
+					Fox::Graphics::Vulkan::Fence* GetParticlesFinishedFence(uint32_t index) {
+						return particleRenderFences[index].get();
+					}
+
 				private:
 
 					VkDevice device;

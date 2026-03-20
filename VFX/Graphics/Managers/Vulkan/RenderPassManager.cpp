@@ -14,8 +14,9 @@ namespace Fox {
 
 				bool RenderPassManager::Initialize(VkDevice device, VkSurfaceCapabilitiesKHR capabilities, VkSurfaceFormatKHR surfaceFormat, VkFormat depthFormat) {
 
-					auto builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
 					{
+						auto builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
+
 						uint32_t color = builder->AddColorAttachment(surfaceFormat.format,
 							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
 							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
@@ -27,12 +28,18 @@ namespace Fox {
 							.AddColorRef(color)
 							.SetDepthRef(depth)
 							.EndSubpass()
-							.AddExternalDependency()
+							.AddDependency(VK_SUBPASS_EXTERNAL, 0,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_ACCESS_MEMORY_READ_BIT,
+								VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
 							.Build());
 
 						renderPasses[Fox::Graphics::Managers::Vulkan::RenderPass::OFFSCREEN] = std::move(offscreenRenderPass);
 					}
 					{
+						auto builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
+
 						uint32_t color = builder->AddColorAttachment(surfaceFormat.format,
 							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
@@ -44,54 +51,125 @@ namespace Fox {
 							.AddColorRef(color)
 							.SetDepthRef(depth)
 							.EndSubpass()
-							.AddExternalDependency()
+							.AddDependency(VK_SUBPASS_EXTERNAL, 0,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_ACCESS_MEMORY_READ_BIT,
+								VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
 							.Build());
 
 						renderPasses[Fox::Graphics::Managers::Vulkan::RenderPass::OFFSCREEN_NO_CLEAR] = std::move(offscreenRenderPassNoClear);
 					}
 					{
-						builder.reset();
-						builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
+						auto builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
 
 						uint32_t color = builder->AddColorAttachment(surfaceFormat.format,
 							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
 							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
-							VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-						uint32_t depth = builder->AddDepthAttachment(depthFormat);
+							//	VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+							VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+						uint32_t depth = builder->AddDepthAttachment(depthFormat,
+							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
+							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE);
 
 						std::unique_ptr<Fox::Graphics::Vulkan::RenderPass> defaultRenderPass = std::make_unique<Fox::Graphics::Vulkan::RenderPass>(builder
 							->BeginSubpass()
 							.AddColorRef(color)
 							.SetDepthRef(depth)
 							.EndSubpass()
-							.AddExternalDependency()
+							.AddDependency(VK_SUBPASS_EXTERNAL, 0,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_ACCESS_MEMORY_READ_BIT,
+								VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
 							.Build());
 
 						renderPasses[Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT] = std::move(defaultRenderPass);
 					}
 
 					{
-						builder.reset();
-						builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
+						auto builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
 
 						uint32_t color = builder->AddColorAttachment(surfaceFormat.format,
-							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD,
 							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
-							VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-						uint32_t depth = builder->AddDepthAttachment(depthFormat);
+							//		VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+							VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+						uint32_t depth = builder->AddDepthAttachment(depthFormat, 
+							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD,
+							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE);
 
 						std::unique_ptr<Fox::Graphics::Vulkan::RenderPass> defaultDontClear = std::make_unique<Fox::Graphics::Vulkan::RenderPass>(builder
 							->BeginSubpass()
 							.AddColorRef(color)
 							.SetDepthRef(depth)
 							.EndSubpass()
-							.AddExternalDependency()
+							.AddDependency(VK_SUBPASS_EXTERNAL, 0,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_ACCESS_MEMORY_READ_BIT,
+								VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
 							.Build());
 
 						renderPasses[Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR] = std::move(defaultDontClear);
 
 					
 					}
+
+					{
+						auto builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
+
+						uint32_t color = builder->AddColorAttachment(surfaceFormat.format,
+							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
+							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
+								VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+						uint32_t depth = builder->AddDepthAttachment(depthFormat,
+							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
+							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE);
+
+						std::unique_ptr<Fox::Graphics::Vulkan::RenderPass> defaultRenderPass = std::make_unique<Fox::Graphics::Vulkan::RenderPass>(builder
+							->BeginSubpass()
+							.AddColorRef(color)
+							.SetDepthRef(depth)
+							.EndSubpass()
+							.AddDependency(VK_SUBPASS_EXTERNAL, 0,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_ACCESS_MEMORY_READ_BIT,
+								VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
+							.Build());
+
+						renderPasses[Fox::Graphics::Managers::Vulkan::RenderPass::TO_PRESENTABLE] = std::move(defaultRenderPass);
+					}
+
+					{
+						auto builder = std::make_unique<Fox::Graphics::Vulkan::RenderPassBuilder>(device);
+
+						uint32_t color = builder->AddColorAttachment(surfaceFormat.format,
+							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD,
+							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
+									VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+						uint32_t depth = builder->AddDepthAttachment(depthFormat,
+							VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD,
+							VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE);
+
+						std::unique_ptr<Fox::Graphics::Vulkan::RenderPass> defaultDontClear = std::make_unique<Fox::Graphics::Vulkan::RenderPass>(builder
+							->BeginSubpass()
+							.AddColorRef(color)
+							.SetDepthRef(depth)
+							.EndSubpass()
+							.AddDependency(VK_SUBPASS_EXTERNAL, 0,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+								VK_ACCESS_MEMORY_READ_BIT,
+								VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
+							.Build());
+
+						renderPasses[Fox::Graphics::Managers::Vulkan::RenderPass::TO_PRESENTABLE_NO_CLEAR] = std::move(defaultDontClear);
+
+
+					}
+
 					return true;
 				}
 

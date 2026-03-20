@@ -99,7 +99,7 @@ namespace Fox {
 							.WithColorBlending(VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT |
 								VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_A_BIT, VK_TRUE, VK_FALSE, VkLogicOp::VK_LOGIC_OP_COPY, { 1.0f, 1.0f, 1.0f , 1.0f })
 							.SetLayout(mainPipelineLayout->Get())
-							.WithDepthStencil(VK_FALSE)
+							.WithDepthStencil(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS_OR_EQUAL)
 							.SetRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT)->Get())
 							.Build());
 
@@ -126,8 +126,8 @@ namespace Fox {
 							.WithColorBlending(VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT |
 								VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_A_BIT, VK_TRUE, VK_FALSE, VkLogicOp::VK_LOGIC_OP_COPY, { 1.0f, 1.0f, 1.0f , 1.0f })
 							.SetLayout(mainPipelineLayout->Get())
-							.WithDepthStencil(VK_FALSE)
-							.SetRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR)->Get())
+							.WithDepthStencil(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS_OR_EQUAL)
+							.SetRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::TO_PRESENTABLE_NO_CLEAR)->Get())
 							.Build());
 
 						pipelines[Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR] = std::move(mainMeshBindlessShaderPipeline);
@@ -170,7 +170,7 @@ namespace Fox {
 							.WithColorBlending(VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT |
 								VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_A_BIT, VK_TRUE, VK_FALSE, VkLogicOp::VK_LOGIC_OP_COPY, { 1.0f, 1.0f, 1.0f , 1.0f })
 							.SetLayout(eulerParticleRenderPipelineLayout->Get())
-						//	.WithDepthStencil(VK_TRUE)
+							.WithDepthStencil(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS_OR_EQUAL)
 							.SetRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT)->Get())
 							.Build());
 
@@ -197,7 +197,7 @@ namespace Fox {
 							.WithColorBlending(VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT |
 								VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_A_BIT, VK_TRUE, VK_FALSE, VkLogicOp::VK_LOGIC_OP_COPY, { 1.0f, 1.0f, 1.0f , 1.0f })
 							.SetLayout(eulerParticleRenderPipelineLayout->Get())
-							//	.WithDepthStencil(VK_TRUE)
+							.WithDepthStencil(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS_OR_EQUAL)
 							.SetRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR)->Get())
 							.Build());
 

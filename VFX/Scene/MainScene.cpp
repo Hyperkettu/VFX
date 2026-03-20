@@ -12,7 +12,7 @@ namespace Fox {
 			SetUpCamera(capabilities);
 
 			auto root = sceneGraph->GetRoot();
-			AddMesh("Cube", Fox::Graphics::Managers::Vulkan::MeshResource::CUBE, root, glm::vec3(0.0f, 0.0f, -20.0f), glm::vec3(0.0f), glm::vec3(1.0f), 0);
+			AddMesh("Cube", Fox::Graphics::Managers::Vulkan::MeshResource::CUBE, root, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f), 0);
 
 
 
@@ -37,7 +37,7 @@ namespace Fox {
 		}
 
 		void MainScene::SetUpCamera(VkSurfaceCapabilitiesKHR capabilities) {
-			mainCamera = std::make_unique<Fox::Graphics::Vulkan::Camera3D>(45.0f, static_cast<float>(capabilities.currentExtent.width) / static_cast<float>(capabilities.currentExtent.height), 0.1f, 1000.0f);
+			mainCamera = std::make_unique<Fox::Graphics::Vulkan::Camera3D>(45.0f, static_cast<float>(capabilities.currentExtent.width) / static_cast<float>(capabilities.currentExtent.height), 0.1f, 10000.0f);
 			auto* camera = dynamic_cast<Fox::Graphics::Vulkan::Camera3D*>(mainCamera.get());
 			camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
 			camera->SetCameraTarget(glm::vec3(0.0f, 0.0f, 0.0f));

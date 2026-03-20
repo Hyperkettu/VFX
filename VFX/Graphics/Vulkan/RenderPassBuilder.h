@@ -26,7 +26,7 @@ namespace Fox {
                     desc.storeOp = storeOp;
                     desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                     desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-                    desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                    desc.initialLayout =  loadOp == VK_ATTACHMENT_LOAD_OP_LOAD ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
                     desc.finalLayout = finalLayout;
 
                     attachments.push_back(desc);
@@ -46,7 +46,7 @@ namespace Fox {
                     desc.storeOp = storeOp;
                     desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                     desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-                    desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                    desc.initialLayout = loadOp == VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD ? VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
                     desc.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
                     attachments.push_back(desc);
@@ -153,6 +153,7 @@ namespace Fox {
                     dep.dstStageMask = dstStageMask;
                     dep.srcAccessMask = srcAccessMask;
                     dep.dstAccessMask = dstAccessMask;
+                    dep.dependencyFlags = 0;
                     dependencies.push_back(dep);
                     return *this;
                 }

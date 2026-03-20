@@ -24,6 +24,10 @@ layout(std140, binding = 1) uniform PerFrame {
     mat4 proj;
 } ubo;
 
+layout(std140, binding = 2) uniform MeshTransforms {
+    mat4 models[1024];
+} model;
+
 // Locations must be specified for fragment shader input
 layout(location = 0) out vec2 vUV[];
 layout(location = 1) out vec4 vColor[];
@@ -43,7 +47,9 @@ void main()
         
     }
 
-    vec4 viewPos = ubo.view * vec4(p.position, 1.0);
+    mat4 world = model.models[0];
+
+    vec4 viewPos = ubo.view * world * vec4(p.position, 1.0);
     float size = 0.1;
     
     vec2 offsets[4] = vec2[](

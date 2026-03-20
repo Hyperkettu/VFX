@@ -49,7 +49,9 @@ namespace Fox {
 					particleRenderDescriptorSets[i]->Reserve(3);
 
 					particleWorldTransforms[i] = std::make_unique<Fox::Graphics::Vulkan::DynamicConstantBuffer<glm::mat4>>(device, physicalDevice);
-					std::vector<glm::mat4> worldTransforms = { glm::mat4(1.0f) };
+
+					glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+					std::vector<glm::mat4> worldTransforms = { world };
 					particleWorldTransforms[i]->Update(worldTransforms);
 				}
 
@@ -75,7 +77,8 @@ namespace Fox {
 					.DispatchComputeShader(maxParticles / 256, 1, 1)
 					.End();
 
-				std::vector<glm::mat4> worldTransforms = { glm::mat4(1.0f) };
+				glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 15.0f));
+				std::vector<glm::mat4> worldTransforms = { world };
 				particleWorldTransforms[frameIndex]->Update(worldTransforms);
 			}
 

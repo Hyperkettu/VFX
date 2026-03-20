@@ -319,7 +319,7 @@ namespace Fox {
 				Graphics::Managers::Vulkan::TextureManager::Get().Update(currentFrameIndex);
 
 				std::array<VkClearValue, 2> clearValues{};
-				clearValues[0].color = { 0.0f, 0.5f, 0.5f, 1.0f };
+				clearValues[0].color = { 0.0f, 0.0f, 0.34f, 1.0f };
 				clearValues[1].depthStencil = { 1.0f, 0 };
 
 				frameResource->commandPool->Reset();
@@ -327,33 +327,10 @@ namespace Fox {
 				uint32_t imageIndex = frameResourceManager.GetSwapchain()->AcquireNextImage(frameResource->imageAvailableSemaphore->Get());
 
 				Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().Render(frameResource->commandPool, frameResource->commandList, graphicsQueue, frameResource->imageAvailableSemaphore, currentFrame, imageIndex, capabilities, clearValues);
-				
-				frameResource->offscreenDescriptorSet->ClearWrites();
-				frameResource->offscreenDescriptorSet->SetConstantBuffer(0, frameResource->oldPerFrameUBO);
-				frameResource->offscreenDescriptorSet->SetShaderResourceTexture(1, Fox::Graphics::Managers::Vulkan::TextureManager::Get().GetShaderResourceTexture("box").get());
-				frameResource->offscreenDescriptorSet->Update(); 
-				UpdateOffscreenUniformBuffer(currentFrame, scenes[0]);
-				
-				auto offscreenPipeline = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipeline(Fox::Graphics::Managers::Vulkan::PipelineCategory::OFFSCREEN_RENDERING)->Get();
-				auto offscreenPipelineLayout = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipelineLayout(Fox::Graphics::Managers::Vulkan::PipelineCategory::OFFSCREEN_RENDERING)->Get();
-
-				frameResource->offscreenCommandList->Begin()
-					.BeginRenderPass(Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(Fox::Graphics::Managers::Vulkan::RenderPass::OFFSCREEN)->Get(),
-						frameResourceManager.GetFramebuffer(Fox::Graphics::Managers::Vulkan::FrameBuffer::OFFSCREEN_TARGET)->Get(), capabilities.currentExtent, &clearValues[0], 2)
-					.SetViewport(0, 0, capabilities.currentExtent.width, capabilities.currentExtent.height)
-					.SetScissor(0, 0, capabilities.currentExtent.width, capabilities.currentExtent.height)
-					.BindPipeline(offscreenPipeline)
-					.BindDescriptorSets(offscreenPipelineLayout, 0, { frameResource->offscreenDescriptorSet->Get() })
-					.RenderMeshShader(1, 1, 1)
-					.EndRenderPass()
-					.End()
-					.Submit(graphicsQueue, Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().GetParticlesFinishedSemaphore(currentFrame), frameResource->offscreenFinishedSemaphore->Get(), VK_NULL_HANDLE);
-
-				std::array<VkClearValue, 2> clearValuesScenePass{};
-				clearValuesScenePass[0].color = { 1.0f, 0.0f, 0.25f, 1.0f };
-				clearValuesScenePass[1].depthStencil = { 1.0f, 0 };
 
 				vkDeviceWaitIdle(device);
+
+				frameResource->commandPool->Reset();
 
 				auto& commandList = frameResource->commandList->Begin();
 
@@ -366,20 +343,17 @@ namespace Fox {
 					uint32_t numRenderables = UpdateUniformBuffer(currentFrame, scene);
 
 					auto pipeline = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipeline(
-						sceneIndex == 0 ?
-						Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR :
 						Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR)->Get();
 
-					auto layout = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipeline(Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING)->GetLayout();
+					auto layout = Fox::Graphics::Managers::Vulkan::PipelineManager::Get().GetPipeline(Fox::Graphics::Managers::Vulkan::PipelineCategory::MESH_SHADER_BINDLESS_TEXTURING_NO_CLEAR)->GetLayout();
 
 					commandList
 						.BeginRenderPass(
 							Fox::Graphics::Managers::Vulkan::RenderPassManager::Get().GetPass(
-								sceneIndex == 0 ? Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR : Fox::Graphics::Managers::Vulkan::RenderPass::DEFAULT_NO_CLEAR)->Get(),
+								Fox::Graphics::Managers::Vulkan::RenderPass::TO_PRESENTABLE_NO_CLEAR)->Get(), // DEFAULT NO CLEAR
 							frameResourceManager.GetSwapchain()->GetFramebuffer(imageIndex),
 							capabilities.currentExtent,
-							&clearValuesScenePass[0],
-							clearValuesScenePass.size())
+							nullptr, 0)
 						.SetViewport(0, 0, capabilities.currentExtent.width, capabilities.currentExtent.height)
 						.SetScissor(0, 0, capabilities.currentExtent.width, capabilities.currentExtent.height)
 						.BindPipeline(pipeline)
@@ -394,10 +368,10 @@ namespace Fox {
 
 				commandList.Submit(
 					graphicsQueue,
-					frameResource->offscreenFinishedSemaphore->Get(),
+					Fox::Graphics::Managers::Vulkan::ParticleEffectManager::Get().GetParticlesFinishedSemaphore(currentFrame),
 					frameResource->renderFinishedSemaphore->Get(),
 					frameResource->renderFence->Get());
-	
+
 				Present(frameResourceManager.GetSwapchain(), imageIndex, frameResource->renderFinishedSemaphore);
 
 				currentFrame = (currentFrame + 1) % config.MAX_FRAMES_IN_FLIGHT;
